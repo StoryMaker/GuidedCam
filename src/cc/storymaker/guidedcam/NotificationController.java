@@ -38,4 +38,8 @@ public class NotificationController {
 			i.stop();
 		}
 	}
+	
+	public ArrayList<NotificationPlugin> getPlugins() {
+		return mPlugins;
+	}
 }

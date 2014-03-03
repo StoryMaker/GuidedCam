@@ -14,6 +14,10 @@ public abstract class NotificationPlugin {
 		mView = view;
 	}
 	
+	public View getView() {
+		return mView;
+	}
+	
 	public abstract void start(); 
 //		 must override in plugin classes to start up their AsyncTask loop that decides their own status
 	

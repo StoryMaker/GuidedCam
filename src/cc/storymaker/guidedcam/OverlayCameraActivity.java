@@ -1,6 +1,8 @@
 package cc.storymaker.guidedcam;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -18,12 +20,18 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
+import com.kviation.android.sample.orientation.AttitudeIndicator;
+import com.kviation.android.sample.orientation.Orientation;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParser;
 
@@ -61,7 +69,11 @@ public class OverlayCameraActivity extends Activity implements Callback,
 		}
 
 	};
-
+	
+	NotificationController mNotificationController;
+	Orientation mOrientationPlugin;
+	ArrayAdapter<NotificationPlugin> mNotificationTrayAdapter;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -79,23 +91,65 @@ public class OverlayCameraActivity extends Activity implements Callback,
 		ActivitySwipeDetector swipe = new ActivitySwipeDetector(this);
 		mOverlayView.setOnTouchListener(swipe);
 
-		mOverlayView.setOnClickListener(new OnClickListener() {
+//		mOverlayView.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				closeOverlay();
+//			}
+//
+//		});
 
-			@Override
-			public void onClick(View v) {
-				closeOverlay();
-			}
-
-		});
-
+		RelativeLayout rel = new RelativeLayout(this);
 		mSurfaceView = new SurfaceView(this);
-		addContentView(mSurfaceView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+//		addContentView(mSurfaceView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		rel.addView(mSurfaceView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		mSurfaceHolder = mSurfaceView.getHolder();
 		mSurfaceHolder.addCallback(this);
 		mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		addContentView(mOverlayView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		rel.addView(mOverlayView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		
+		// Notification setup 
+		mNotificationController = new NotificationController();
+		
+		// create linearlayout on left side of screen to hold notificationplugins
+		LinearLayout ll = new LinearLayout(this);// FIXME switch this to user a swipable Listview
+		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(128, android.widget.RelativeLayout.LayoutParams.FILL_PARENT);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+		ll.setPadding(18, 18, 18, 18);
+		rel.addView(ll, layoutParams);
+		
+		AttitudeIndicator attIndic = new AttitudeIndicator(this);
+		layoutParams = new RelativeLayout.LayoutParams(64, 64);
+		layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+		attIndic.setLayoutParams(layoutParams);
+
+		ll.addView(attIndic, layoutParams);
+
+		mOrientationPlugin = new Orientation(this, mNotificationController, attIndic);
+		mNotificationController.addPlugin(mOrientationPlugin);
+		
+		// get notification tray listview
+		// get criticalnotification listview
+		// get majornotification listview
+		// setup plugins
+		
+
+		addContentView(rel, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
 	}
+	
+	  @Override
+	  protected void onResume() {
+	    super.onResume();
+	    mNotificationController.start();
+	  }
+
+	  @Override
+	  protected void onPause() {
+	    super.onPause();
+	    mNotificationController.stop();
+	  }
 
 	private void closeOverlay() {
 
