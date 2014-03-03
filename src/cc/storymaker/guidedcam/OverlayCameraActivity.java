@@ -109,23 +109,40 @@ public class OverlayCameraActivity extends Activity implements Callback,
 		mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		rel.addView(mOverlayView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		
-		// Notification setup 
-		mNotificationController = new NotificationController();
-		
+
 		// create linearlayout on left side of screen to hold notificationplugins
-		LinearLayout ll = new LinearLayout(this);// FIXME switch this to user a swipable Listview
+		LinearLayout llTray = new LinearLayout(this);// FIXME switch this to user a swipable Listview
 		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(128, android.widget.RelativeLayout.LayoutParams.FILL_PARENT);
 		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-		ll.setPadding(18, 18, 18, 18);
-		rel.addView(ll, layoutParams);
+		llTray.setPadding(18, 18, 18, 18);
+		rel.addView(llTray, layoutParams);
+		
+		// create linearlayout on top center to hold a notificationplugins
+		LinearLayout llTopCenter = new LinearLayout(this);// FIXME switch this to user a swipable Listview
+		layoutParams = new RelativeLayout.LayoutParams(128, 128);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+		layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+		llTopCenter.setPadding(18, 18, 18, 18);
+		rel.addView(llTopCenter, layoutParams);
+		
+		// create linearlayout on top center to hold a notificationplugins
+		LinearLayout llCenter = new LinearLayout(this);// FIXME switch this to user a swipable Listview
+		layoutParams = new RelativeLayout.LayoutParams(256, 256);
+		layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+		llCenter.setPadding(18, 18, 18, 18);
+		rel.addView(llCenter, layoutParams);
 		
 		AttitudeIndicator attIndic = new AttitudeIndicator(this);
-		layoutParams = new RelativeLayout.LayoutParams(64, 64);
-		layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-		attIndic.setLayoutParams(layoutParams);
+		
+//		layoutParams = new RelativeLayout.LayoutParams(64, 64);
+//		layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+//		attIndic.setLayoutParams(layoutParams);
 
-		ll.addView(attIndic, layoutParams);
+//		llCenter.addView(attIndic, layoutParams);
+		llTopCenter.addView(attIndic, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
+		// Notification setup 
+		mNotificationController = new NotificationController(llTray, llTopCenter, llCenter);
 		mOrientationPlugin = new Orientation(this, mNotificationController, attIndic);
 		mNotificationController.addPlugin(mOrientationPlugin);
 		

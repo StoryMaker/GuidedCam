@@ -3,6 +3,7 @@ package cc.storymaker.guidedcam;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.view.View;
 import android.webkit.WebView.FindListener;
 
 import com.kviation.android.sample.orientation.AttitudeIndicator;
@@ -14,6 +15,10 @@ public class NotificationController {
 	public static final int STATE_MINOR 	= 1;
 	public static final int STATE_MAJOR 	= 2;
 	public static final int STATE_CRITICAL 	= 3;
+
+	private View mTray;
+	private View mTopCenter;
+	private View mCenter;
 	
 	public void updateState(NotificationPlugin plugin, int state) {
 		
@@ -23,7 +28,10 @@ public class NotificationController {
 		mPlugins.add(plugin);
 	}
 	
-	NotificationController() {
+	NotificationController(View tray, View topCenter, View center) {
+		mTray = tray;
+		mTopCenter = topCenter;
+		mCenter = center;
 		mPlugins = new ArrayList<NotificationPlugin>(); 
 	}
 	
